@@ -1,0 +1,156 @@
+Explain the difference between constructor and setter injection?
+
+In constructor injection, partial injection is not allowed whereas it is allowed in setter injection.
+The constructor injection doesn’t override the setter property whereas the same is not true for setter injection.
+Constructor injection creates a new instance if any modification is done. The creation of a new instance is not possible in setter injection.
+In case the bean has many properties, then constructor injection is preferred. If it has few properties, then setter injection is preferred.
+
+@Controller // Setter injection
+public class SetterController {
+    private MyService myService;
+    @Autowired
+    public void setMyService(MyService myService) {
+        this.myService = myService;
+    }
+    public String saySomething(){
+        return myService.getHello();
+    }
+}
+
+
+@Controller // Constructor
+public class ConstructorController {
+    private MyService myService;
+    public ConstructorController(MyService myService) {
+        this.myService = myService;
+    }
+    public String saySomething(){
+        return myService.getHello();
+    }
+}
+
+===================================================================================================================
+Singleton: The scope of bean definition while using this would be a single instance per IoC container.
+Prototype: Here, the scope for a single bean definition can be any number of object instances.
+Request: The scope of the bean definition is an HTTP request.
+Session: Here, the scope of the bean definition is HTTP-session.
+Global-session: The scope of the bean definition here is a Global HTTP session.
+===================================================================================================================
+
+The IoC container instantiates the bean from the bean’s definition in the XML file.
+Spring then populates all of the properties using the dependency injection as specified in the bean definition.
+The bean factory container calls setBeanName() which take the bean ID and the corresponding bean has to implement BeanNameAware interface.
+The factory then calls setBeanFactory() by passing an instance of itself (if BeanFactoryAware interface is implemented in the bean).
+If BeanPostProcessors is associated with a bean, then the preProcessBeforeInitialization() methods are invoked.
+If an init-method is specified, then it will be called.
+Lastly, postProcessAfterInitialization() methods will be called if there are any BeanPostProcessors associated with the bean that needs to be run post creation.
+====================================================================================================================
+
+no: This means no autowiring and is the default setting. An explicit bean reference should be used for wiring.
+byName: The bean dependency is injected according to the name of the bean. This matches and wires its properties with the beans defined by the same names as per the configuration.
+byType: This injects the bean dependency based on type.
+constructor: Here, it injects the bean dependency by calling the constructor of the class. It has a large number of parameters.
+autodetect: First the container tries to wire using autowire by the constructor, if it isn't possible then it tries to autowire by byType
+====================================================================================================================
+
+What are the limitations of autowiring?
+Overriding possibility: Dependencies are specified using <constructor-arg> and <property>  settings that override autowiring.
+Data types restriction: Primitive data types, Strings, and Classes can’t be autowired
+
+public class MyClass {
+    @Autowired
+    private MyOtherClass myOtherClass;
+
+    public MyClass(final MyOtherClass myOtherClass) {
+        this.myOtherClass = myOtherClass;
+    }
+}
+
+<bean class="com.something.MyClass">
+    <constructor-arg name="myOtherClass" class="com.something.MyOtherClass" />
+</bean>
+====================================================================================================================
+Can you tell how to exclude any package without using the basePackages filter?
+We can use the exclude attribute while using the annotation @SpringBootApplication as follows: 
+
+@SpringBootApplication(exclude= {Student.class})
+public class InterviewBitAppConfiguration {}
+====================================================================================================================
+
+How to disable specific auto-configuration class?
+You can use the exclude attribute of @EnableAutoConfiguration for this purpose as shown below:
+@EnableAutoConfiguration(exclude = {InterviewBitAutoConfiguration.class})
+If the class is not specified on the classpath, we can specify the fully qualified name as the value for the excludeName.
+
+//By using "excludeName"
+@EnableAutoConfiguration(excludeName={Foo.class})
+You can add into the application.properties and multiple classes can be added by keeping it comma-separated.
+====================================================================================================================
+What is DispatcherServlet in Spring MVC? In other words, can you explain the Spring MVC architecture?
+Spring MVC framework is built around a central servlet called DispatcherServlet that handles all the HTTP requests and responses. The DispatcherServlet does a lot more than that:
+
+It seamlessly integrates with the IoC container and allows you to use each feature of Spring in an easier manner.
+The DispatcherServlet contacts HandlerMapping to call the appropriate Controller for processing the request on receiving it. Then, the controller calls appropriate service methods to set or process the Model data. The service processes the data and returns the view name to DispatcherServlet. DispatcherServlet then takes the help of ViewResolver and picks up the defined view for the request. Once the view is decided, the DispatcherServlet passes the Model data to View where it is finally rendered on the browser.
+===================================================================================================================
+
+What is ContextLoaderListener and what does it do?
+The ContextLoaderListener loads and creates the ApplicationContext, so a developer need not write explicit code to do create it. In short, it is a listener that aids to bootstrap Spring MVC.
+The application context is where Spring bean resides. For a web application, there is a subclass called WebAppliationContext.
+The lifecycle of the ApplicationContext is tied to the lifecycle of the ServletContext by using ContextLoaderListener. The ServletContext from the WebApplicationContext can be obtained using the getServletContext() method.
+
+===================================================================================================================
+How does the Spring MVC flow look like? In other words, How does a DispatcherServlet know what Controller needs to be called when there is an incoming request to the Spring MVC?
+A Dispatcher Servlet knows which controller to call by means of handler mappings. These mappings have the mapping between the controller and the requests. BeanNameUrlHandlerMapping and SimpleUrlHandlerMapping are the two most commonly used handler mappings.
+
+BeanNameUrlHandlerMapping: When the URL request matches the bean name, the class corresponding to the bean definition is the actual controller that is responsible for processing the request.
+SimpleUrlHandlerMapping: Here, the mapping is very explicit. The number of URLs can be specified here and each URL is associated explicitly with a controller.
+If the Spring MVC is configured using annotations, then @RequestMapping annotations are used for this purpose. The @RequestMapping annotation is configured by making use of the URI path, HTTP methods, query parameters, and the HTTP Headers.
+
+===================================================================================================================
+What is classloader?
+Classloader is a subsystem of JVM which is used to load class files. Whenever we run the java program, it is loaded first by the classloader. There are three built-in classloaders in Java.
+
+Bootstrap ClassLoader: This is the first classloader which is the superclass of Extension classloader. It loads the rt.jar file which contains all class files of Java Standard Edition like java.lang package classes, java.net package classes, java.util package classes, java.io package classes, java.sql package classes, etc.
+Extension ClassLoader: This is the child classloader of Bootstrap and parent classloader of System classloader. It loads the jar files located inside $JAVA_HOME/jre/lib/ext directory.
+System/Application ClassLoader: This is the child classloader of Extension classloader. It loads the class files from the classpath. By default, the classpath is set to the current directory. You can change the classpath using "-cp" or "-classpath" switch. It is also known as Application classloader.
+
+===================================================================================================================
+What is the static block?
+Static block is used to initialize the static data member. It is executed before the main method, at the time of classloading.
+
+===================================================================================================================
+Can we change the scope of the overridden method in the subclass?
+Yes, we can change the scope of the overridden method in the subclass. However, we must notice that we cannot decrease the accessibility of the method. The following point must be taken care of while changing the accessibility of the method.
+
+The private can be changed to protected, public, or default.
+The protected can be changed to public or default.
+The default can be changed to public.
+The public will always remain public.
+
+===================================================================================================================
+
+Can we modify the throws clause of the superclass method while overriding it in the subclass?
+Yes, we can modify the throws clause of the superclass method while overriding it in the subclass. However, there are some rules which are to be followed while overriding in case of exception handling.
+
+If the superclass method does not declare an exception, subclass overridden method cannot declare the checked exception, but it can declare the unchecked exception.
+If the superclass method declares an exception, subclass overridden method can declare same, subclass exception or no exception but cannot declare parent exception.
+
+===================================================================================================================
+What is the final variable?
+https://static.javatpoint.com/images/core/final.jpg
+===================================================================================================================
+
+What is the difference between compile-time polymorphism and runtime polymorphism?
+
+===================================================================================================================
+
+Checked Exception: Checked exceptions are the one which are checked at compile-time. For example, SQLException, ClassNotFoundException, etc.
+
+Unchecked Exception: Unchecked exceptions are the one which are handled at runtime because they can not be checked at compile-time. For example, ArithmaticException, NullPointerException, ArrayIndexOutOfBoundsException, etc.
+
+Error: Error cause the program to exit since they are not recoverable. For Example, OutOfMemoryError, AssertionError, etc.
+
+==================================================================================================================
+
+What is the purpose of the finalize() method?
+The finalize() method is invoked just before the object is garbage collected. It is used to perform cleanup processing. The Garbage collector of JVM collects only those objects that are created by new keyword. So if you have created an object without new, you can use the finalize method to perform cleanup processing (destroying remaining objects). The cleanup processing is the process to free up all the resources, network which was previously used and no longer needed. It is essential to remember that it is not a reserved keyword, finalize method is present in the object class hence it is available in every class as object class is the superclass of every class in java. 
